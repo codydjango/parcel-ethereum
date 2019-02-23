@@ -1,19 +1,19 @@
 {
-  "name": "nodeethmessage",
+  "name": "ethdev",
   "version": "1.0.0",
-  "description": "",
+  "description": "parcel, react, web3",
   "main": "./src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "./node_modules/.bin/parcel src/web/index.html --open",
+    "start": "./node_modules/.bin/parcel src/index.html"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-  	"web3": "^1.0.0-beta.46",
-  	"babel-polyfill": "^6.26.0",
-  	"react": "^16.8.0",
-  	"react-dom": "^16.8.0"
+    "web3": "^1.0.0-beta.46",
+    "babel-polyfill": "^6.26.0",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
