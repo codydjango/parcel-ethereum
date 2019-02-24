@@ -78,13 +78,10 @@ class App extends React.Component {
     async handleSetMessage() {
         try {
             const userAccount = (await window.web3.eth.getAccounts())[0]
-            console.log('userAccount', userAccount)
-
             const transaction = this.contract.methods.setMessage(this.textInput.current.value)
             const receipt = await transaction.send({
                 from: userAccount
             })
-            console.log('receipt', receipt)
         } catch (err) {
             console.log('err', err)
         }
