@@ -6,76 +6,99 @@ import '~/style.scss'
 import web3Init from '~/web3Init'
 
 window.web3 = web3Init(window)
+console.log(web3.version)
 
-const contractAddress = '0x35122239ed172a4537D382AC449A6941a94e5E51'
+const contractOptions = {
+    from: '0x48e74B904c1729D4bfDF7BcbeC08e1029230f88D',
+    gasPrice: '20000000000',
+    gas: '3000000'
+}
+const contractAddress = '0x3c948fDE44E111Af10ed9760BC3bcf8bf900f31B'
 const contractAbi = [
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "x",
-				"type": "string"
-			}
-		],
-		"name": "setMessage",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "getMessage",
-		"outputs": [
-			{
-				"name": "",
-				"type": "string"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	}
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "x",
+                "type": "string"
+            }
+        ],
+        "name": "setMessage",
+        "outputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "getMessage",
+        "outputs": [
+            {
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    }
 ]
 
-const Contract = window.web3.eth.contract(contractAbi)
 
 class App extends React.Component {
     constructor(props) {
         super(props)
 
-        this.state = {}
-        this.contract = Contract.at(contractAddress)
+        this.state = { currentMessage: '' }
+        this.contract = new web3.eth.Contract(contractAbi, contractAddress, contractOptions)
         this.textInput = React.createRef()
 
         this.focusTextInput = this.focusTextInput.bind(this)
         this.handleSetMessage = this.handleSetMessage.bind(this)
-
-        console.log(this.contract)
     }
 
     componentDidMount() {
-    	this.focusTextInput()
+        this.focusTextInput()
+        this.updateMessage()
     }
 
     focusTextInput() {
-		this.textInput.current.focus()
+        this.textInput.current.focus()
     }
 
-    handleSetMessage() {
-    	const value = this.textInput.value
-    	console.log('value', value)
-    	this.contract.setMessage(value)
+    async updateMessage() {
+        try {
+            this.setState({ currentMessage: (await this.contract.methods.getMessage().call()) })
+        } catch (err) {
+            console.log('err', err)
+        }
+    }
+
+    async handleSetMessage() {
+        try {
+            const userAccount = (await window.web3.eth.getAccounts())[0]
+            console.log('userAccount', userAccount)
+
+            const transaction = this.contract.methods.setMessage(this.textInput.current.value)
+            const receipt = await transaction.send({
+                from: userAccount
+            })
+            console.log('receipt', receipt)
+        } catch (err) {
+            console.log('err', err)
+        }
     }
 
     render() {
         return (<div>
-	        <h1>Ethereum Secret Messenger</h1>
-    	    <hr />
-        	<label htmlFor="userInput">This site writes a secret message to the Ethereum blockchain!</label>
-	        <input ref={ this.textInput } id="userInput" type="text" />
-    	    <button id="setMessageButton" onClick={ this.handleSetMessage }>Set secret message</button>
+            <h1>Ethereum Secret Messenger</h1>
+            <hr />
+
+            <h5>current message: { this.state.currentMessage }</h5>
+            <label htmlFor="userInput">This site writes a secret message to the Ethereum blockchain!</label>
+            <input ref={ this.textInput } id="userInput" type="text" />
+            <button id="setMessageButton" onClick={ this.handleSetMessage }>Set secret message</button>
         </div>)
     }
 }
